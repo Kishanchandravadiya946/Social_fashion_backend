@@ -1,0 +1,20 @@
+def init_models(db):
+    from .site_user import SiteUser
+    from .user_address import UserAddress
+    from .address import Address
+    from .country import Country
+    from .user_payment_method import UserPaymentMethod
+    from .payment_type import PaymentType
+    from .shopping_cart import ShoppingCart
+    from .shopping_cart_item import ShoppingCartItem
+    from .wishlist_item import WishlistItem
+    from .shop_order import ShopOrder
+    from .shipping_method import ShippingMethod
+    from .order_status import OrderStatus
+    from .order_line import OrderLine
+    from .product import Product
+    from .product_category import ProductCategory
+    from .product_item import ProductItem
+    from .product_configuration import ProductConfiguration
+    from .variation import Variation
+    from .variation_option import VariationOption
