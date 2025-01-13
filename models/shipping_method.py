@@ -1,4 +1,4 @@
-from app import db
+from extensions import db
 
 class ShippingMethod(db.Model):
     __tablename__ = 'shipping_method'

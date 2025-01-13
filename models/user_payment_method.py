@@ -1,4 +1,4 @@
-from app import db
+from extensions import db
 
 class UserPaymentMethod(db.Model):
     __tablename__ = 'user_payment_method'

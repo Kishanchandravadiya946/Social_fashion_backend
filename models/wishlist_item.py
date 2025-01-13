@@ -1,4 +1,4 @@
-from app import db
+from extensions import db
 
 class WishlistItem(db.Model):
     __tablename__ = 'wishlist_item'

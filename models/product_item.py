@@ -1,4 +1,4 @@
-from app import db
+from extensions import db
 
 class ProductItem(db.Model):
     __tablename__ = 'product_item'

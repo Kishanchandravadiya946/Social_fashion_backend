@@ -1,4 +1,4 @@
-from app import db
+from extensions import db
 
 class OrderStatus(db.Model):
     __tablename__ = 'order_status'

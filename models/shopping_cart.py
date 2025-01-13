@@ -1,4 +1,4 @@
-from app import db
+from extensions import db
 
 class ShoppingCart(db.Model):
     __tablename__ = 'shopping_cart'

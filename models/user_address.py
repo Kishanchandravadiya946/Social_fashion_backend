@@ -1,4 +1,4 @@
-from app import db
+from extensions import db
 
 class UserAddress(db.Model):
     __tablename__ = 'user_address'

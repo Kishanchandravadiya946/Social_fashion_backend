@@ -1,4 +1,4 @@
-from app import db
+from extensions import db
 
 class SiteUser(db.Model):
     __tablename__ = 'site_user'

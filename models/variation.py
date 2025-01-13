@@ -1,4 +1,4 @@
-from app import db
+from extensions import db
 
 class Variation(db.Model):
     __tablename__ = 'variation'

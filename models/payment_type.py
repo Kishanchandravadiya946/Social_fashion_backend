@@ -1,4 +1,4 @@
-from app import db
+from extensions import db
 
 class PaymentType(db.Model):
     __tablename__ = 'payment_type'
