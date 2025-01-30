@@ -5,9 +5,10 @@ from flask_migrate import Migrate
 from models import init_models
 from api.user.views import user_bp
 from api.product.views import product_category_bp,product_bp,product_item_bp,variation_bp,variation_option_bp
-
+from flask_cors import CORS
 
 app=Flask(__name__)
+CORS(app)
 app.config.from_object(Config)
 
 db.init_app(app)

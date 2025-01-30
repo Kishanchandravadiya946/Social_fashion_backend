@@ -10,3 +10,7 @@ def create_user():
 @user_bp.route('/list', methods=['GET'])
 def get_users():
     return UserResource.get_users()
+
+@user_bp.route('/login',methods=['POST'])
+def login_user():
+    return UserResource.login_user()
