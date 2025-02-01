@@ -39,10 +39,12 @@ class ProductItemResource(Resource):
         }, 201
 
     def get():
-        product_items = ProductItem.query.all()
-        
-        product_items_schema=ProductItemSchema(many=True)
-        return {"product_items": product_items_schema.dump(product_items)}, 200
+       try:
+         product_items = ProductItem.query.all()       
+         product_items_schema=ProductItemSchema(many=True)
+         return product_items_schema.jsonify(product_items), 200
+       except Exception as e:
+            return jsonify({'mes':"error "}),500
 
 
 class ProductItemsByProductResource(Resource):
