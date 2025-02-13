@@ -8,11 +8,27 @@ class ProductCategoryResource(Resource):
     def create_category():
         data = request.get_json()
         category_name = data.get('category_name')
-        parent_category_id = data.get('parent_category_id', None)
-
+        parent_category_id = data.get('parent_category_id', None)  
+        existing_category = ProductCategory.query.filter_by(category_name=parent_category_id).first()
+        if existing_category:
+            parent_category_id =existing_category.id,        
+        # print(parent_category_id)
+        
         if not category_name:
+            # print("A")
             return {"error": "category_name is required"}, 400
 
+        existing_category = ProductCategory.query.filter_by(category_name=category_name,parent_category_id=parent_category_id).first()
+        if existing_category:
+            # print("B")
+            return {"error": "Category with this name already exists"}, 400
+    
+        if parent_category_id:
+            parent_category = ProductCategory.query.get(parent_category_id)
+            if not parent_category:
+                # print("C",parent_category_id)
+                return {"error": "Parent category does not exist"}, 400
+        
         new_category = ProductCategory(
             category_name=category_name,
             parent_category_id=parent_category_id
@@ -21,6 +37,7 @@ class ProductCategoryResource(Resource):
         try:
             db.session.add(new_category)
             db.session.commit()
+            # print("D")
             return jsonify({'message': 'Product Cateogory created successfully!', '_id': new_category.id}), 201
         except Exception as e:
             db.session.rollback()

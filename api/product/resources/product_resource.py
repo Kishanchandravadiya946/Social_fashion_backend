@@ -4,17 +4,23 @@ from extensions import db
 from models.product import Product
 from models.product_category import ProductCategory
 from ..schemas.product_schema import ProductSchema
-
+from ...shared.uploadFile import uploadfile 
+from ...shared.isAllowedFile import isAllowedFile
+import imghdr
 
 class ProductResource(Resource):
+       
     def create():
-        data = request.get_json()
+        data = request.form
 
         category_id = data.get('category_id')
         name = data.get('name')
         description = data.get('description', '')
-        product_image = data.get('product_image', '')
-
+        product_image =None
+        existing_category = ProductCategory.query.filter_by(category_name=category_id).first()
+        if existing_category:
+            category_id =existing_category.id, 
+            
         if not category_id:
             return {"error": "category_id is required"}, 400
 
@@ -24,6 +30,14 @@ class ProductResource(Resource):
         category = ProductCategory.query.get(category_id)
         if not category:
             return {"error": f"Category with id {category_id} does not exist"}, 404
+        
+        if "product_image" in request.files:
+            file = request.files["product_image"]
+            if file.filename == "":
+                return {"error": "No selected file"}, 400
+            if not isAllowedFile(file):
+                return {"error": "Invalid image format. Allowed formats: PNG, JPG, JPEG, GIF, BMP, WEBP"}, 400
+            product_image = uploadfile(file,file.filename)
 
         new_product = Product(
             category_id=category_id,

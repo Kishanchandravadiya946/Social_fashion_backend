@@ -4,14 +4,17 @@ from extensions import db
 from models.product_item import ProductItem
 from models.product import Product
 from ..schemas.product_item_schema import ProductItemSchema
+from ...shared.uploadFile import uploadfile 
+from ...shared.isAllowedFile import isAllowedFile
+
 
 class ProductItemResource(Resource):
     def post():
-        data = request.get_json()
+        data = request.form
         product_id = data.get('product_id')
         SKU = data.get('SKU')
         qty_in_stock = data.get('qty_in_stock')
-        product_image = data.get('product_image', '')
+        product_image = None
         price = data.get('price')
 
         if not product_id or not SKU or qty_in_stock is None or price is None:
@@ -21,6 +24,15 @@ class ProductItemResource(Resource):
         if not product:
             return {"error": f"Product with id {product_id} does not exist"}, 404
 
+        if "product_image" in request.files:
+            file = request.files["product_image"]
+            if file.filename == "":
+                return {"error": "No selected file"}, 400
+            if not isAllowedFile(file):
+                return {"error": "Invalid image format. Allowed formats: PNG, JPG, JPEG, GIF, BMP, WEBP"}, 400
+            product_image = uploadfile(file,file.filename)
+        
+        
         new_product_item = ProductItem(
             product_id=product_id,
             SKU=SKU,
@@ -28,7 +40,7 @@ class ProductItemResource(Resource):
             product_image=product_image,
             price=price
         )
-
+        
         db.session.add(new_product_item)
         db.session.commit()
         
@@ -43,6 +55,7 @@ class ProductItemResource(Resource):
          product_items = ProductItem.query.all()       
          product_items_schema=ProductItemSchema(many=True)
          return product_items_schema.jsonify(product_items), 200
+     
        except Exception as e:
             return jsonify({'mes':"error "}),500
 

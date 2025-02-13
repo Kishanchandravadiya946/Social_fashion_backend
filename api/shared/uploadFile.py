@@ -1,7 +1,7 @@
 import cloudinary
 import cloudinary.uploader
 from cloudinary.utils import cloudinary_url
-from config import CloudinaryUpload
+from .config import CloudinaryUpload
 
 cloudinary.config(
     cloud_name = CloudinaryUpload.cloud_name, 
@@ -10,7 +10,8 @@ cloudinary.config(
     secure=CloudinaryUpload.secure
 )
 
-def uploadfie(file,name=None):
+def uploadfile(file,name=None):
     upload_result = cloudinary.uploader.upload(file,public_id=name)
-    print(upload_result['secure_url'])
+    # print(upload_result['secure_url'])
+    return upload_result['secure_url']
     
