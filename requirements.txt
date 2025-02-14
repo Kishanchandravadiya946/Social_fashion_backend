@@ -3,3 +3,4 @@ flask-restful
 flask-SQLAlchemy
 flask-Migrate
 python-dotenv
+flask-jwt-extended

@@ -6,10 +6,14 @@ from models.product import Product
 from ..schemas.product_item_schema import ProductItemSchema
 from ...shared.uploadFile import uploadfile 
 from ...shared.isAllowedFile import isAllowedFile
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
 class ProductItemResource(Resource):
     def post():
+        current_user = get_jwt_identity()
+        if current_user['role'] != 'admin':
+               return jsonify({'error': 'Unauthorized access'}), 403 
         data = request.form
         product_id = data.get('product_id')
         SKU = data.get('SKU')

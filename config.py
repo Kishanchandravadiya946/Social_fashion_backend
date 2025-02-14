@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from datetime import timedelta
 
 load_dotenv()
 
@@ -11,3 +12,8 @@ class Config:
     HOST=os.getenv("FLASK_RUN_HOST")
     PORT=os.getenv("FLASK_RUN_PORT")
     DEBUG_APP=os.getenv("FLASK_DEBUG")
+    
+    JWT_SECRET_KEY=os.getenv("JWT_SECRET_KEY",'default_secret_key')
+    JWT_TOKEN_LOCATION=["headers"] 
+    JWT_IDENTITY_CLAIM="user_id"
+    JWT_ACCESS_TOKEN_EXPIRES=timedelta(minutes=10)

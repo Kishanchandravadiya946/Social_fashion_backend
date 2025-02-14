@@ -4,9 +4,13 @@ from extensions import db
 from models.variation import Variation
 from models.product_category import ProductCategory
 from ..schemas.variation_schema import VariationSchema
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 class VariationResource(Resource):
     def post(self):
+        current_user = get_jwt_identity()
+        if current_user['role'] != 'admin':
+               return jsonify({'error': 'Unauthorized access'}), 403 
         data = request.get_json()
 
         category_id = data.get('category_id')

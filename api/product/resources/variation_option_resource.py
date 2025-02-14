@@ -4,9 +4,13 @@ from extensions import db
 from models.variation_option import VariationOption
 from models.variation import Variation
 from ..schemas.variation_option_schema import VartationOptionSchema
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 class VariationOptionResource(Resource):
     def post():
+        current_user = get_jwt_identity()
+        if current_user['role'] != 'admin':
+               return jsonify({'error': 'Unauthorized access'}), 403 
         data = request.get_json()
 
         variation_id = data.get('variation_id')
