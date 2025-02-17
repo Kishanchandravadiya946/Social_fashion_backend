@@ -62,6 +62,9 @@ variation_bp= Blueprint("Variation",__name__ ,url_prefix='/variation')
 @jwt_required()
 def create_variation():
     return VariationResource.post()
+@variation_bp.route('/list',methods=['GET'])
+def list_variation():
+    return VariationResource.get()
 
 @variation_bp.route('/<int:category_id>',methods=['GET'])
 def categories_variation():
@@ -74,6 +77,9 @@ variation_option_bp=Blueprint("Variation_option",__name__ , url_prefix='/variati
 @jwt_required()
 def create_variation_optoion():
     return VariationOptionResource.post()
+@variation_option_bp.route('/list',methods=['GET'])
+def variation_option_list():
+    return VariationOptionResource.get()
 
 @variation_option_bp.route('/<int:variation_id>',methods=['GET'])
 def variation_variation_option_list():

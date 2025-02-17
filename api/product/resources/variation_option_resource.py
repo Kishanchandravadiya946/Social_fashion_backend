@@ -37,6 +37,11 @@ class VariationOptionResource(Resource):
             "variation_option": variation_option_schema.dump(new_option)
         }, 201
 
+    def get():
+        variation_option=VariationOption.query.all()
+        variation_option_schema=VartationOptionSchema(many=True)
+        return variation_option_schema.jsonify(variation_option),200
+
 
 class VariationOptionsByVariationResource(Resource):
     def get(variation_id):

@@ -2,8 +2,8 @@ from extensions import ma
 from models.variation import Variation
 
 class VariationSchema(ma.SQLAlchemyAutoSchema):
-    class meta:
+    class Meta:
         model = Variation
-        load_instance=True
+        load_instance= True
         
     

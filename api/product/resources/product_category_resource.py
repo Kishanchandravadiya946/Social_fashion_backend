@@ -53,7 +53,7 @@ class ProductCategoryResource(Resource):
         try:
          categories = ProductCategory.query.all()
          productcetogories=ProductCategorySchema(many=True)
-         print(productcetogories.jsonify(categories))
+        #  print(productcetogories.jsonify(categories))
          return productcetogories.jsonify(categories), 200
         except Exception as e:
             return jsonify({'mes':"error "}),500
