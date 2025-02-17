@@ -20,7 +20,7 @@ class ProductItemResource(Resource):
         qty_in_stock = data.get('qty_in_stock')
         product_image = None
         price = data.get('price')
-
+        print(product_id,SKU,qty_in_stock,price)
         if not product_id or not SKU or qty_in_stock is None or price is None:
             return {"error": "product_id, SKU, qty_in_stock, and price are required"}, 400
 

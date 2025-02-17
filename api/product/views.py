@@ -17,7 +17,6 @@ def get_product_categories():
     return ProductCategoryResource.list_categories()
 
 
-
 product_bp= Blueprint('Product', __name__ , url_prefix = '/product')
 @product_bp.route('/create',methods=['POST'])
 @jwt_required()

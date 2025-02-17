@@ -21,9 +21,6 @@ class ProductResource(Resource):
         name = data.get('name')
         description = data.get('description', '')
         product_image =None
-        existing_category = ProductCategory.query.filter_by(category_name=category_id).first()
-        if existing_category:
-            category_id =existing_category.id, 
         # print(category_id,name,description)  
         if not category_id:
             print("A")
@@ -53,7 +50,7 @@ class ProductResource(Resource):
             description=description,
             product_image=product_image
         )
-
+        print(category_id,name,description,product_image)
         db.session.add(new_product)
         db.session.commit()
         
@@ -66,6 +63,7 @@ class ProductResource(Resource):
     def Product_list():
         products = Product.query.all()
         products_schema=ProductSchema(many=True)
+        print(products_schema.dump(products))
         return {"products": products_schema.dump(products)}, 200
 
 

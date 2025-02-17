@@ -16,7 +16,13 @@ def get_users():
 @user_bp.route('/login',methods=['POST'])
 def login_user():
     return UserResource.login_user()
-@user_bp.route('check-role',methods=['GET'])
+
+@user_bp.route('/logout',methods=['POST'])
 @jwt_required()
-def check_role():
-    return UserResource.check_role()
+def logout_user():
+    return UserResource.logout_user()
+
+@user_bp.route('profile',methods=['GET'])
+@jwt_required()
+def get_profile():
+    return UserResource.get_profile()

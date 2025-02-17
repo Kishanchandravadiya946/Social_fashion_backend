@@ -16,7 +16,7 @@ class ProductCategoryResource(Resource):
         existing_category = ProductCategory.query.filter_by(category_name=parent_category_id).first()
         if existing_category:
             parent_category_id =existing_category.id,        
-        print(parent_category_id)
+        # print(parent_category_id)
         
         if not category_name:
             print("A")
@@ -53,6 +53,7 @@ class ProductCategoryResource(Resource):
         try:
          categories = ProductCategory.query.all()
          productcetogories=ProductCategorySchema(many=True)
+         print(productcetogories.jsonify(categories))
          return productcetogories.jsonify(categories), 200
         except Exception as e:
             return jsonify({'mes':"error "}),500
