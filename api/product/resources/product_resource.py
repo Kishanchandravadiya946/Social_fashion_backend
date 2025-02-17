@@ -17,10 +17,11 @@ class ProductResource(Resource):
         name = data.get('name')
         description = data.get('description', '')
         product_image =None
+        print(category_id)
         existing_category = ProductCategory.query.filter_by(category_name=category_id).first()
         if existing_category:
             category_id =existing_category.id, 
-            
+        print(category_id)
         if not category_id:
             return {"error": "category_id is required"}, 400
 
@@ -40,12 +41,12 @@ class ProductResource(Resource):
             product_image = uploadfile(file,file.filename)
 
         new_product = Product(
-            category_id=category_id,
+            category_id=category_id[0],
             name=name,
             description=description,
             product_image=product_image
         )
-
+        # print(category_id,name,description,product_image)
         db.session.add(new_product)
         db.session.commit()
         

@@ -2,7 +2,7 @@ import imghdr
 
 
 
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "bmp", "webp"}
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "bmp", "webp","jpeg.jpg"}
 @staticmethod
 def isAllowedFile(file):
         if not file:
