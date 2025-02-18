@@ -62,9 +62,20 @@ class ProductResource(Resource):
 
     def Product_list():
         products = Product.query.all()
+        print(products)
         products_schema=ProductSchema(many=True)
-        print(products_schema.dump(products))
-        return {"products": products_schema.dump(products)}, 200
+        # print(products_schema.dump(products))
+        return  products_schema.jsonify(products), 200
+    
+    def get_product(product_id):
+        try:
+            product = Product.query.get(product_id)
+            if not product:
+                return jsonify({'message': 'Product not found'}), 404
+            product_schema=ProductSchema()
+            return jsonify(product_schema.dump(product)), 200
+        except Exception as e:
+            return jsonify({'message': "Error retrieving product"}), 500
 
 
 class CategoryWiseProductResource(Resource):
@@ -81,5 +92,28 @@ class CategoryWiseProductResource(Resource):
             "category_name": category.category_name,
             "products": products_schema.dump(products)
         }, 200
+      
+    def get_all_subcategories(category_id):
+        subcategories = ProductCategory.query.filter_by(parent_category_id=category_id).all()    
+        category_ids = {category_id}
+        for subcategory in subcategories:
+            category_ids.update(get_all_subcategories(subcategory.id))
+
+        return category_ids  
+        
+    def get_products_by_top_category(category_id):
+        try:
+            category_ids = {category_id}
+            subcategories = ProductCategory.query.filter_by(parent_category_id=category_id).all()
+            category_ids.update(subcategories)            
+            products = Product.query.filter(Product.category_id.in_(category_ids)).all()
+
+            if not products:
+                return jsonify({'message': 'No products found for this category'}), 404
+            products_schema=ProductSchema(many=True)
+            return jsonify(products_schema.dump(products)), 200
+        except Exception as e:
+            return jsonify({'message': 'Error retrieving products'}), 500
+
  
 
