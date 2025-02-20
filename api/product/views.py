@@ -15,7 +15,9 @@ def create_product_catogory():
 @product_category_bp.route('/list',methods=['GET'])
 def get_product_categories():
     return ProductCategoryResource.list_categories()
-
+@product_category_bp.route('/categories/<int:category_id>', methods=['GET'])
+def get_category(category_id):
+    return ProductCategoryResource.get_category(category_id)
 
 product_bp= Blueprint('Product', __name__ , url_prefix = '/product')
 @product_bp.route('/create',methods=['POST'])
@@ -27,9 +29,16 @@ def create_product():
 def list_product():
     return ProductResource.Product_list()
 
-@product_bp.route('/<int:category_id>/product',methods=['GET'])
-def category_wise_product():
-    return CategoryWiseProductResource.get() 
+@product_bp.route('/products/<int:product_id>', methods=['GET'])
+def get_product(product_id):
+    return ProductResource.get_product(product_id)
+
+@product_bp.route('/<int:category_id>/products',methods=['GET'])
+def category_wise_product(category_id):
+    return CategoryWiseProductResource.get(category_id) 
+@product_bp.route('/products/category/<int:category_id>', methods=['GET'])
+def get_products_by_category(category_id):
+    return ProductResource.get_products_by_top_category(category_id)
 
 
 
@@ -43,13 +52,16 @@ def create_product_item():
 def list_product_item():
     return ProductItemResource.get()
 
-@product_item_bp.route('/<int:product_id>/product_item',methods=['GET'])
+@product_item_bp.route('/<int:product_id>/product_items',methods=['GET'])
 def product_product_item_list():
     return ProductItemsByProductResource.get()
+@product_item_bp.route('/category/<int:category_id>',methods=['GET'])
+def product_item_category(category_id):
+    return ProductItemsByProductResource.get_product_items_by_category(category_id)
 
 @product_item_bp.route('update/<int:item_id>',methods=['PUT'])
-def update_product_item():
-    return ProductItemDetailResource.put()
+def update_product_item(item_id):
+    return ProductItemDetailResource.put(item_id)
 
 @product_item_bp.route('delete/<int:item_id>',methods=['DELETE'])
 def delete_product_item():

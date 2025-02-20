@@ -3,6 +3,7 @@ from flask_restful import Resource
 from extensions import db
 from models.product_item import ProductItem
 from models.product import Product
+from models.product_category import ProductCategory
 from ..schemas.product_item_schema import ProductItemSchema
 from ...shared.uploadFile import uploadfile 
 from ...shared.isAllowedFile import isAllowedFile
@@ -78,6 +79,38 @@ class ProductItemsByProductResource(Resource):
             "product_name": product.name,
             "product_items": product_items_schema.dump(product_items)
         }, 200
+    
+    def get_product_items_by_category(category_id):
+    
+        # data = request.get_json()
+        # category_id = data.get("category_id")
+
+        if not category_id:
+          return jsonify({"error": "category_id is required"}), 400
+
+        subcategories = [category_id]  # Include the main category
+        queue = [category_id]  # To process subcategories
+
+        while queue:
+         current_category = queue.pop(0)
+         sub_cats = ProductCategory.query.filter_by(parent_category_id=current_category).all()
+         for sub_cat in sub_cats:
+            subcategories.append(sub_cat.id)
+            queue.append(sub_cat.id)  
+
+        products = Product.query.filter(Product.category_id.in_(subcategories)).all()
+        product_ids = [product.id for product in products]
+
+        if not product_ids:
+          return jsonify({"message": "No products found for this category"}), 404
+
+        product_items = ProductItem.query.filter(ProductItem.product_id.in_(product_ids)).all()
+
+        if not product_items:
+          return jsonify({"message": "No product items found for these products"}), 404
+
+        product_item_schema = ProductItemSchema(many=True)
+        return jsonify({"product_items": product_item_schema.dump(product_items)}), 200
 
 
 class ProductItemDetailResource(Resource):

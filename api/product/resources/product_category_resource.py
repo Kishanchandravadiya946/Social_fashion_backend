@@ -57,8 +57,19 @@ class ProductCategoryResource(Resource):
          categories = ProductCategory.query.all()
          productcetogories=ProductCategorySchema(many=True)
         #  print(productcetogories.jsonify(categories))
-         return productcetogories.jsonify(categories), 200
+         return productcetogories.dump(categories), 200
         except Exception as e:
             return jsonify({'mes':"error "}),500
+    
+    def get_category(category_id):
+        try:
+            category = ProductCategory.query.get(category_id)
+            productcetogories=ProductCategorySchema()
+
+            if not category:
+                return jsonify({'message': 'Category not found'}), 404
+            return jsonify(productcetogories.dump(category)), 200
+        except Exception as e:
+            return jsonify({'message': "Error retrieving category"}), 500
     
     
