@@ -4,10 +4,12 @@ from .resources.product_resource import ProductResource,CategoryWiseProductResou
 from .resources.product_item_resource import ProductItemResource,ProductItemDetailResource,ProductItemsByProductResource
 from .resources.variation_resource import VariationResource,VariationsByCategoryResource
 from .resources.variation_option_resource import VariationOptionResource,VariationOptionsByVariationResource
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 product_category_bp= Blueprint('product_catogory', __name__ , url_prefix='/product_category')
 
 @product_category_bp.route('/create',methods=['POST'])
+@jwt_required()
 def create_product_catogory():
     return ProductCategoryResource.create_category()
 @product_category_bp.route('/list',methods=['GET'])
@@ -15,9 +17,9 @@ def get_product_categories():
     return ProductCategoryResource.list_categories()
 
 
-
 product_bp= Blueprint('Product', __name__ , url_prefix = '/product')
 @product_bp.route('/create',methods=['POST'])
+@jwt_required()
 def create_product():
     return ProductResource.create()
 
@@ -33,6 +35,7 @@ def category_wise_product():
 
 product_item_bp= Blueprint('ProductItem', __name__ , url_prefix ='/product_item')
 @product_item_bp.route('/create',methods=['POST'])
+@jwt_required()
 def create_product_item():
     return ProductItemResource.post()
 
@@ -56,8 +59,12 @@ def delete_product_item():
 
 variation_bp= Blueprint("Variation",__name__ ,url_prefix='/variation')
 @variation_bp.route('/create',methods=['POST'])
+@jwt_required()
 def create_variation():
     return VariationResource.post()
+@variation_bp.route('/list',methods=['GET'])
+def list_variation():
+    return VariationResource.get()
 
 @variation_bp.route('/<int:category_id>',methods=['GET'])
 def categories_variation():
@@ -67,8 +74,12 @@ def categories_variation():
 
 variation_option_bp=Blueprint("Variation_option",__name__ , url_prefix='/variation_option')
 @variation_option_bp.route('/create',methods=['POST'])
+@jwt_required()
 def create_variation_optoion():
     return VariationOptionResource.post()
+@variation_option_bp.route('/list',methods=['GET'])
+def variation_option_list():
+    return VariationOptionResource.get()
 
 @variation_option_bp.route('/<int:variation_id>',methods=['GET'])
 def variation_variation_option_list():

@@ -7,32 +7,36 @@ from ..schemas.product_schema import ProductSchema
 from ...shared.uploadFile import uploadfile 
 from ...shared.isAllowedFile import isAllowedFile
 import imghdr
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 class ProductResource(Resource):
        
     def create():
+        current_user = get_jwt_identity()
+        if current_user['role'] != 'admin':
+               return jsonify({'error': 'Unauthorized access'}), 403 
         data = request.form
-
+        # print(data)
         category_id = data.get('category_id')
         name = data.get('name')
         description = data.get('description', '')
         product_image =None
-        print(category_id)
-        existing_category = ProductCategory.query.filter_by(category_name=category_id).first()
-        if existing_category:
-            category_id =existing_category.id, 
-        print(category_id)
+        # print(category_id,name,description)  
         if not category_id:
+            print("A")
             return {"error": "category_id is required"}, 400
 
         if not name:
+            print("B")
             return {"error": "name is required"}, 400
 
         category = ProductCategory.query.get(category_id)
         if not category:
+            print("C")
             return {"error": f"Category with id {category_id} does not exist"}, 404
         
         if "product_image" in request.files:
+            print("D")
             file = request.files["product_image"]
             if file.filename == "":
                 return {"error": "No selected file"}, 400
@@ -46,7 +50,7 @@ class ProductResource(Resource):
             description=description,
             product_image=product_image
         )
-        # print(category_id,name,description,product_image)
+        print(category_id,name,description,product_image)
         db.session.add(new_product)
         db.session.commit()
         
@@ -59,6 +63,7 @@ class ProductResource(Resource):
     def Product_list():
         products = Product.query.all()
         products_schema=ProductSchema(many=True)
+        print(products_schema.dump(products))
         return {"products": products_schema.dump(products)}, 200
 
 
