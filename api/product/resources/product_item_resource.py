@@ -80,10 +80,10 @@ class ProductItemsByProductResource(Resource):
             "product_items": product_items_schema.dump(product_items)
         }, 200
     
-    def get_product_items_by_category():
+    def get_product_items_by_category(category_id):
     
-        data = request.get_json()
-        category_id = data.get("category_id")
+        # data = request.get_json()
+        # category_id = data.get("category_id")
 
         if not category_id:
           return jsonify({"error": "category_id is required"}), 400

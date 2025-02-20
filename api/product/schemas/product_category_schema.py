@@ -5,3 +5,4 @@ class ProductCategorySchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model=ProductCategory
         load_instance = True
+        include_fk = True  

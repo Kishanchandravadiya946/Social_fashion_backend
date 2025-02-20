@@ -55,6 +55,9 @@ def list_product_item():
 @product_item_bp.route('/<int:product_id>/product_items',methods=['GET'])
 def product_product_item_list():
     return ProductItemsByProductResource.get()
+@product_item_bp.route('/category/<int:category_id>',methods=['GET'])
+def product_item_category(category_id):
+    return ProductItemsByProductResource.get_product_items_by_category(category_id)
 
 @product_item_bp.route('update/<int:item_id>',methods=['PUT'])
 def update_product_item(item_id):

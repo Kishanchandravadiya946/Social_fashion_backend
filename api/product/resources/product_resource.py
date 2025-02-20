@@ -93,13 +93,6 @@ class CategoryWiseProductResource(Resource):
             "products": products_schema.dump(products)
         }, 200
       
-    def get_all_subcategories(category_id):
-        subcategories = ProductCategory.query.filter_by(parent_category_id=category_id).all()    
-        category_ids = {category_id}
-        for subcategory in subcategories:
-            category_ids.update(get_all_subcategories(subcategory.id))
-
-        return category_ids  
         
     def get_products_by_top_category(category_id):
         try:
