@@ -1,6 +1,7 @@
 from flask import request, jsonify
 from extensions import db
 from models.site_user import SiteUser
+from models.shopping_cart import ShoppingCart
 from ..schemas.user_schema import UserSchema
 from datetime import timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -34,9 +35,12 @@ class UserResource:
         phone_number=phone_number,
         password=hashed_password
      )
-
+     
      try:
         db.session.add(new_user)
+        db.session.commit()
+        shopping_cart = ShoppingCart(user_id=new_user.id)
+        db.session.add(shopping_cart)
         db.session.commit()
         return jsonify({'message': 'User created successfully!', 'user_id': new_user.id}), 201
      except Exception as e:

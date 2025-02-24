@@ -62,7 +62,7 @@ class ProductResource(Resource):
 
     def Product_list():
         products = Product.query.all()
-        print(products)
+        # print(products)
         products_schema=ProductSchema(many=True)
         # print(products_schema.dump(products))
         return  products_schema.jsonify(products), 200

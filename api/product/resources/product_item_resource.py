@@ -4,6 +4,8 @@ from extensions import db
 from models.product_item import ProductItem
 from models.product import Product
 from models.product_category import ProductCategory
+from models.wishlist_item import WishlistItem
+from models.shopping_cart import ShoppingCart
 from ..schemas.product_item_schema import ProductItemSchema
 from ...shared.uploadFile import uploadfile 
 from ...shared.isAllowedFile import isAllowedFile
@@ -104,14 +106,46 @@ class ProductItemsByProductResource(Resource):
         if not product_ids:
           return jsonify({"message": "No products found for this category"}), 404
 
-        product_items = ProductItem.query.filter(ProductItem.product_id.in_(product_ids)).all()
+        product_items = db.session.query(
+             ProductItem.id,
+             ProductItem.SKU,
+             ProductItem.qty_in_stock,
+             ProductItem.product_image,
+             ProductItem.price,
+             ProductItem.product_id,
+             Product.name.label("product_name"),
+             Product.description.label("product_description")
+          ).join(Product, ProductItem.product_id == Product.id).filter(ProductItem.product_id.in_(product_ids)).all()
 
         if not product_items:
-          return jsonify({"message": "No product items found for these products"}), 404
+             return jsonify({"message": "No product items found for these products"}), 404
+        
+        wishlist_items = set()
+        current_user = get_jwt_identity()
+        print(current_user)
+        if current_user:
+            user_cart = ShoppingCart.query.filter_by( user_id=current_user['user_id']).first()
+            wishlist_items = {
+                w.product_item_id for w in WishlistItem.query.filter_by(cart_id=user_cart.id).all()}
 
-        product_item_schema = ProductItemSchema(many=True)
-        return jsonify({"product_items": product_item_schema.dump(product_items)}), 200
+        result = [
+            {
+            "id": item.id,
+            "SKU": item.SKU,
+            "qty_in_stock": item.qty_in_stock,
+            "product_image": item.product_image,
+            "price": item.price,
+            "wishlist": item.id in wishlist_items if current_user else False,
+            "product": {
+                "id": item.product_id,
+                "name": item.product_name,
+                "description": item.product_description
+                 }
+            }
+            for item in product_items
+        ]
 
+        return jsonify({"product_items": result}), 200
 
 class ProductItemDetailResource(Resource):
     def put(item_id):

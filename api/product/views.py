@@ -56,6 +56,7 @@ def list_product_item():
 def product_product_item_list():
     return ProductItemsByProductResource.get()
 @product_item_bp.route('/category/<int:category_id>',methods=['GET'])
+@jwt_required(optional=True)
 def product_item_category(category_id):
     return ProductItemsByProductResource.get_product_items_by_category(category_id)
 
