@@ -18,12 +18,13 @@ class ProductItemResource(Resource):
         if current_user['role'] != 'admin':
                return jsonify({'error': 'Unauthorized access'}), 403 
         data = request.form
+        # print(data)
         product_id = data.get('product_id')
         SKU = data.get('SKU')
         qty_in_stock = data.get('qty_in_stock')
         product_image = None
         price = data.get('price')
-        print(product_id,SKU,qty_in_stock,price)
+        # print(product_id,SKU,qty_in_stock,price)
         if not product_id or not SKU or qty_in_stock is None or price is None:
             return {"error": "product_id, SKU, qty_in_stock, and price are required"}, 400
 
@@ -149,31 +150,49 @@ class ProductItemsByProductResource(Resource):
 
 class ProductItemDetailResource(Resource):
     def put(item_id):
-        data = request.get_json()
-
+        data = request.form
+        print(data)
         product_item = ProductItem.query.get(item_id)
         if not product_item:
             return {"error": f"Product item with id {item_id} does not exist"}, 404
-
-        product_item.SKU = data.get('SKU', product_item.SKU)
-        product_item.qty_in_stock = data.get('qty_in_stock', product_item.qty_in_stock)
-        product_item.product_image = data.get('product_image', product_item.product_image)
-        product_item.price = data.get('price', product_item.price)
+        if not data.get('SKU'):
+            return{"error":'SKU required'},400
+        if not data.get('qty_in_stock'):
+            return {"error":'qty_in_stock required'},400
+        if not data.get('price'):
+            return {"error":'price required'},400
+        if not data.get('product_id'):
+            return{"error":'product_id required'},400
+    
+        product_item.SKU = data.get('SKU')
+        product_item.product_id=data.get('product_id')
+        product_item.qty_in_stock = data.get('qty_in_stock')
+        product_item.price = data.get('price')
+        if "product_image" in request.files:
+                print("D")
+                file = request.files["product_image"]
+                if file.filename == "":
+                    return {"error": "No selected file"}, 400
+                if not isAllowedFile(file):
+                    return {"error": "Invalid image format. Allowed formats: PNG, JPG, JPEG, GIF, BMP, WEBP"}, 400
+                product_item.product_image = uploadfile(file,file.filename)
 
         db.session.commit()
 
-        product_item_schema=ProductItemSchema()
         return {
-            "message": "Product item updated successfully",
-            "product_item": product_item_schema.dump(product_item)
+            "message": "Product item updated successfully"
         }, 200
 
-    def delete( item_id):
-        product_item = ProductItem.query.get(item_id)
-        if not product_item:
-            return {"error": f"Product item with id {item_id} does not exist"}, 404
+    def delete(item_id):
+        try:
+            product_item = ProductItem.query.get(item_id)
+            if not product_item:
+                return {"error": f"Product item with id {item_id} does not exist"}, 404
 
-        db.session.delete(product_item)
-        db.session.commit()
+            db.session.delete(product_item)
+            db.session.commit()
 
-        return {"message": f"Product item with id {item_id} deleted successfully"}, 200
+            return {"message": f"Product item with id {item_id} deleted successfully"}, 200
+        except Exception as e:
+             return jsonify({'mes':"error "}),500
+

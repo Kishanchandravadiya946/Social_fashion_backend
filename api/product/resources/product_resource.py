@@ -45,7 +45,7 @@ class ProductResource(Resource):
             product_image = uploadfile(file,file.filename)
 
         new_product = Product(
-            category_id=category_id,
+            category_id=category_id[0],
             name=name,
             description=description,
             product_image=product_image
@@ -77,6 +77,68 @@ class ProductResource(Resource):
         except Exception as e:
             return jsonify({'message': "Error retrieving product"}), 500
 
+    def product_update(product_id):
+        try:
+            data=request.form
+            # print(data)
+            product = Product.query.get(product_id)
+
+            if not data.get('category_id'):
+                # print("A")
+                return {"error": "category_id is required"}, 400
+
+            if not  data.get('name'):
+                # print("B")
+                return {"error": "name is required"}, 400
+
+            if not  data.get('description'):
+                # print("B")
+                return {"error": "description is required"}, 400
+
+            if not product:
+                print("C")
+                return {"error": f"product with id {product_id} does not exist"}, 404
+        
+            product.category_id = data.get('category_id')
+            product.name = data.get('name')
+            product.description = data.get('description', '')
+            # product.product_image =None
+            # print(category_id,name,description)  
+            
+            
+            if "product_image" in request.files:
+                print("D")
+                file = request.files["product_image"]
+                if file.filename == "":
+                    return {"error": "No selected file"}, 400
+                if not isAllowedFile(file):
+                    return {"error": "Invalid image format. Allowed formats: PNG, JPG, JPEG, GIF, BMP, WEBP"}, 400
+                product.product_image = uploadfile(file,file.filename)
+
+            db.session.commit()
+            return {
+            "message": "Product updated successfully",
+             }, 200
+
+        except Exception as e:
+            return jsonify({'message': "Error while updating product"}), 500
+        
+    def product_delete(product_id):
+        try:
+            if not product_id:
+                return {"error":"product required"},400
+            product = Product.query.get(product_id)
+            if not product:
+                return {"error":"product with id {product_id} doesn't exist"},400
+
+            db.session.delete(product)
+            db.session.commit()
+            return jsonify({"message": f"product with id: {product_id} deleted successfully"}), 200
+
+
+        except Exception as e:
+            return jsonify({'message': "Error while updating product"}), 500
+        
 
 class CategoryWiseProductResource(Resource):
     def get(category_id):

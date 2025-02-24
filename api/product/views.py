@@ -18,6 +18,13 @@ def get_product_categories():
 @product_category_bp.route('/categories/<int:category_id>', methods=['GET'])
 def get_category(category_id):
     return ProductCategoryResource.get_category(category_id)
+@product_category_bp.route('/update/<int:category_id>',methods=['PUT'])
+def update_product_categories(category_id):
+    return ProductCategoryResource.update_category(category_id)
+@product_category_bp.route('/delete/<int:category_id>',methods=['DELETE'])
+def delete_product_category(category_id):
+    return ProductCategoryResource.delete_category(category_id)
+
 
 product_bp= Blueprint('Product', __name__ , url_prefix = '/product')
 @product_bp.route('/create',methods=['POST'])
@@ -32,6 +39,12 @@ def list_product():
 @product_bp.route('/products/<int:product_id>', methods=['GET'])
 def get_product(product_id):
     return ProductResource.get_product(product_id)
+@product_bp.route('/update/<int:product_id>',methods=['PUT'])
+def update_product(product_id):
+    return ProductResource.product_update(product_id)
+@product_bp.route('/delete/<int:product_id>',methods=['DELETE'])
+def delete_product(product_id):
+    return ProductResource.product_delete(product_id)
 
 @product_bp.route('/<int:category_id>/products',methods=['GET'])
 def category_wise_product(category_id):
@@ -39,7 +52,6 @@ def category_wise_product(category_id):
 @product_bp.route('/products/category/<int:category_id>', methods=['GET'])
 def get_products_by_category(category_id):
     return ProductResource.get_products_by_top_category(category_id)
-
 
 
 product_item_bp= Blueprint('ProductItem', __name__ , url_prefix ='/product_item')
@@ -55,6 +67,7 @@ def list_product_item():
 @product_item_bp.route('/<int:product_id>/product_items',methods=['GET'])
 def product_product_item_list():
     return ProductItemsByProductResource.get()
+
 @product_item_bp.route('/category/<int:category_id>',methods=['GET'])
 @jwt_required(optional=True)
 def product_item_category(category_id):
@@ -65,8 +78,8 @@ def update_product_item(item_id):
     return ProductItemDetailResource.put(item_id)
 
 @product_item_bp.route('delete/<int:item_id>',methods=['DELETE'])
-def delete_product_item():
-    return ProductItemDetailResource.delete()
+def delete_product_item(item_id):
+    return ProductItemDetailResource.delete(item_id)
 
 
 
