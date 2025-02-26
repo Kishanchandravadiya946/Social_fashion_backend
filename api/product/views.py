@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint,request
 from .resources.product_category_resource import ProductCategoryResource
 from .resources.product_resource import ProductResource,CategoryWiseProductResource
 from .resources.product_item_resource import ProductItemResource,ProductItemDetailResource,ProductItemsByProductResource
@@ -24,6 +24,7 @@ def update_product_categories(category_id):
 @product_category_bp.route('/delete/<int:category_id>',methods=['DELETE'])
 def delete_product_category(category_id):
     return ProductCategoryResource.delete_category(category_id)
+
 
 
 product_bp= Blueprint('Product', __name__ , url_prefix = '/product')
@@ -54,6 +55,7 @@ def get_products_by_category(category_id):
     return ProductResource.get_products_by_top_category(category_id)
 
 
+
 product_item_bp= Blueprint('ProductItem', __name__ , url_prefix ='/product_item')
 @product_item_bp.route('/create',methods=['POST'])
 @jwt_required()
@@ -64,14 +66,20 @@ def create_product_item():
 def list_product_item():
     return ProductItemResource.get()
 
-@product_item_bp.route('/<int:product_id>/product_items',methods=['GET'])
+@product_item_bp.route('/<int:product_item_id>',methods=['GET'])
+@jwt_required()
+def product_item(product_item_id):
+    return ProductItemResource.get_product_item(product_item_id)
+@product_item_bp.route('/product/<int:product_id>',methods=['GET'])
 def product_product_item_list():
     return ProductItemsByProductResource.get()
 
 @product_item_bp.route('/category/<int:category_id>',methods=['GET'])
 @jwt_required(optional=True)
 def product_item_category(category_id):
-    return ProductItemsByProductResource.get_product_items_by_category(category_id)
+    filters = request.args.get("f") 
+    selected_categories = filters.split(",") if filters else []
+    return ProductItemsByProductResource.get_product_items_by_category(category_id, selected_categories)
 
 @product_item_bp.route('update/<int:item_id>',methods=['PUT'])
 def update_product_item(item_id):

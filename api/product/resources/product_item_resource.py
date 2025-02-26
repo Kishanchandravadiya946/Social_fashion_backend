@@ -66,6 +66,41 @@ class ProductItemResource(Resource):
      
        except Exception as e:
             return jsonify({'mes':"error "}),500
+        
+    def get_product_item(product_item_id):
+        print(product_item_id)
+        try:
+            product_item=ProductItem.query.get(product_item_id)
+            print(product_item)
+            if not product_item :
+                return {"errro":"Product item not found"},404
+            product = Product.query.get(product_item.product_id)
+            if not product:
+                 return {"error": "Product details not found"}, 404
+            wishlist_exists = False
+            current_user = get_jwt_identity()
+            if current_user:
+                user_cart = ShoppingCart.query.filter_by(user_id=current_user['user_id']).first()
+            if user_cart:
+                wishlist_exists = WishlistItem.query.filter_by(
+                    cart_id=user_cart.id, product_item_id=product_item.id).first() is not None
+
+            result = {
+                "id": product_item.id,
+                "SKU": product_item.SKU,
+                "qty_in_stock": product_item.qty_in_stock,
+                "product_image": product_item.product_image,
+                "price": product_item.price,
+                "wishlist": wishlist_exists,
+                "product": {
+                    "id": product.id,
+                    "name": product.name,
+                    "description": product.description
+                }
+            }
+            return jsonify({"product_item": result}), 200
+        except Exception as e:
+            return jsonify({'mes': "error "}), 500
 
 
 class ProductItemsByProductResource(Resource):
@@ -83,24 +118,29 @@ class ProductItemsByProductResource(Resource):
             "product_items": product_items_schema.dump(product_items)
         }, 200
     
-    def get_product_items_by_category(category_id):
-    
+    def get_product_items_by_category(category_id, selected_categories=None,):
+        if selected_categories is None:
+             selected_categories = []
         # data = request.get_json()
         # category_id = data.get("category_id")
 
         if not category_id:
           return jsonify({"error": "category_id is required"}), 400
+        subcategories = [category_id]
+        if selected_categories:
+          subcategories = [
+              cat.id for cat in ProductCategory.query.filter(ProductCategory.category_name.in_(selected_categories)).all()
+           ]
+        else:
+            queue = [category_id] 
 
-        subcategories = [category_id]  # Include the main category
-        queue = [category_id]  # To process subcategories
-
-        while queue:
-         current_category = queue.pop(0)
-         sub_cats = ProductCategory.query.filter_by(parent_category_id=current_category).all()
-         for sub_cat in sub_cats:
-            subcategories.append(sub_cat.id)
-            queue.append(sub_cat.id)  
-
+            while queue:
+             current_category = queue.pop(0)
+             sub_cats = ProductCategory.query.filter_by(parent_category_id=current_category).all()
+             for sub_cat in sub_cats:
+               subcategories.append(sub_cat.id)
+               queue.append(sub_cat.id)  
+        print(subcategories)
         products = Product.query.filter(Product.category_id.in_(subcategories)).all()
         product_ids = [product.id for product in products]
 
@@ -123,7 +163,7 @@ class ProductItemsByProductResource(Resource):
         
         wishlist_items = set()
         current_user = get_jwt_identity()
-        print(current_user)
+        # print(current_user)
         if current_user:
             user_cart = ShoppingCart.query.filter_by( user_id=current_user['user_id']).first()
             wishlist_items = {

@@ -112,7 +112,5 @@ class ProductCategoryResource(Resource):
             db.session.delete(category)
             db.session.commit()
             return jsonify({"message": f"Category with category id: {category_id} deleted successfully"}), 200
-
-
         except Exception as e:
             return jsonify({"message":'Error deleting category'})
