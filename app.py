@@ -6,6 +6,7 @@ from models import init_models
 from api.user.views import user_bp
 from api.product.views import product_category_bp,product_bp,product_item_bp,variation_bp,variation_option_bp
 from api.shopping_cart.view import shopping_cart_item,wishlist_bp
+from api.order.view import shop_order
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from api.user.resources.user_resource import revoked_tokens
@@ -35,6 +36,7 @@ app.register_blueprint(variation_bp)
 app.register_blueprint(variation_option_bp)
 app.register_blueprint(shopping_cart_item)
 app.register_blueprint(wishlist_bp)
+app.register_blueprint(shop_order)
 
 with app.app_context():
         db.create_all() 
