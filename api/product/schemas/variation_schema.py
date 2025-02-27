@@ -5,5 +5,6 @@ class VariationSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Variation
         load_instance= True
+        include_fk=True
         
     

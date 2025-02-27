@@ -5,3 +5,4 @@ class VartationOptionSchema(ma.SQLAlchemyAutoSchema):
     class Meta :
         model =VariationOption
         load_instance =True
+        include_fk=True
