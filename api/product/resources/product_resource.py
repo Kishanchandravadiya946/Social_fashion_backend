@@ -68,11 +68,13 @@ class ProductResource(Resource):
         return  products_schema.jsonify(products), 200
     
     def get_product(product_id):
+        print(product_id)
         try:
             product = Product.query.get(product_id)
             if not product:
                 return jsonify({'message': 'Product not found'}), 404
             product_schema=ProductSchema()
+            print("hy")
             return jsonify(product_schema.dump(product)), 200
         except Exception as e:
             return jsonify({'message': "Error retrieving product"}), 500

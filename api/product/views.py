@@ -39,6 +39,7 @@ def list_product():
 
 @product_bp.route('/products/<int:product_id>', methods=['GET'])
 def get_product(product_id):
+    # print(product_id)
     return ProductResource.get_product(product_id)
 @product_bp.route('/update/<int:product_id>',methods=['PUT'])
 def update_product(product_id):
@@ -53,8 +54,6 @@ def category_wise_product(category_id):
 @product_bp.route('/products/category/<int:category_id>', methods=['GET'])
 def get_products_by_category(category_id):
     return ProductResource.get_products_by_top_category(category_id)
-
-
 
 product_item_bp= Blueprint('ProductItem', __name__ , url_prefix ='/product_item')
 @product_item_bp.route('/create',methods=['POST'])
@@ -89,8 +88,6 @@ def update_product_item(item_id):
 def delete_product_item(item_id):
     return ProductItemDetailResource.delete(item_id)
 
-
-
 variation_bp= Blueprint("Variation",__name__ ,url_prefix='/variation')
 @variation_bp.route('/create',methods=['POST'])
 @jwt_required()
@@ -101,8 +98,8 @@ def list_variation():
     return VariationResource.get()
 
 @variation_bp.route('/<int:category_id>',methods=['GET'])
-def categories_variation():
-    return VariationsByCategoryResource.get()
+def categories_variation(category_id):
+    return VariationsByCategoryResource.get(category_id)
 
 
 
@@ -116,5 +113,5 @@ def variation_option_list():
     return VariationOptionResource.get()
 
 @variation_option_bp.route('/<int:variation_id>',methods=['GET'])
-def variation_variation_option_list():
-    return VariationOptionsByVariationResource.get()
+def variation_variation_option_list(variation_id):
+    return VariationOptionsByVariationResource.get(variation_id)
