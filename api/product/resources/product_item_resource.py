@@ -16,50 +16,6 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
 class ProductItemResource(Resource):
-    # def post():
-    #     current_user = get_jwt_identity()
-    #     if current_user['role'] != 'admin':
-    #            return jsonify({'error': 'Unauthorized access'}), 403 
-    #     data = request.form
-    #     # print(data)
-    #     product_id = data.get('product_id')
-    #     SKU = data.get('SKU')
-    #     qty_in_stock = data.get('qty_in_stock')
-    #     product_image = None
-    #     price = data.get('price')
-    #     # print(product_id,SKU,qty_in_stock,price)
-    #     if not product_id or not SKU or qty_in_stock is None or price is None:
-    #         return {"error": "product_id, SKU, qty_in_stock, and price are required"}, 400
-
-    #     product = Product.query.get(product_id)
-    #     if not product:
-    #         return {"error": f"Product with id {product_id} does not exist"}, 404
-
-    #     if "product_image" in request.files:
-    #         file = request.files["product_image"]
-    #         if file.filename == "":
-    #             return {"error": "No selected file"}, 400
-    #         if not isAllowedFile(file):
-    #             return {"error": "Invalid image format. Allowed formats: PNG, JPG, JPEG, GIF, BMP, WEBP"}, 400
-    #         product_image = uploadfile(file,file.filename)
-        
-        
-    #     new_product_item = ProductItem(
-    #         product_id=product_id,
-    #         SKU=SKU,
-    #         qty_in_stock=qty_in_stock,
-    #         product_image=product_image,
-    #         price=price
-    #     )
-        
-    #     db.session.add(new_product_item)
-    #     db.session.commit()
-        
-    #     product_item_schema=ProductItemSchema()
-    #     return {
-    #         "message": "Product item created successfully",
-    #         "product_item": product_item_schema.dump(new_product_item)
-    #     }, 201
 
     def post():
         current_user = get_jwt_identity()
@@ -204,24 +160,29 @@ class ProductItemsByProductResource(Resource):
              selected_categories = []
         # data = request.get_json()
         # category_id = data.get("category_id")
-
+       
+        subcategories = []
         if not category_id:
-          return jsonify({"error": "category_id is required"}), 400
-        subcategories = [category_id]
-        if selected_categories:
-          subcategories = [
+            subcategories = [
+                cat.id for cat in ProductCategory.query.all()
+            ]
+        #   return jsonify({"error": "category_id is required"}), 400
+        else :
+            subcategories = [category_id]
+            if selected_categories:
+              subcategories = [
               cat.id for cat in ProductCategory.query.filter(ProductCategory.category_name.in_(selected_categories)).all()
-           ]
-        else:
-            queue = [category_id] 
+                ]
+            else:
+              queue = [category_id] 
 
-            while queue:
-             current_category = queue.pop(0)
-             sub_cats = ProductCategory.query.filter_by(parent_category_id=current_category).all()
-             for sub_cat in sub_cats:
-               subcategories.append(sub_cat.id)
-               queue.append(sub_cat.id)  
-        print(subcategories)
+              while queue:
+                 current_category = queue.pop(0)
+                 sub_cats = ProductCategory.query.filter_by(parent_category_id=current_category).all()
+                 for sub_cat in sub_cats:
+                     subcategories.append(sub_cat.id)
+                     queue.append(sub_cat.id)  
+        # print(subcategories)
         products = Product.query.filter(Product.category_id.in_(subcategories)).all()
         product_ids = [product.id for product in products]
 

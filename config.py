@@ -19,3 +19,5 @@ class Config:
     JWT_ACCESS_TOKEN_EXPIRES=timedelta(minutes=60)
     JWT_BLACKLIST_ENABLED = True
     JWT_BLACKLIST_TOKEN_CHECKS = ["access", "refresh"]
+    
+    STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
