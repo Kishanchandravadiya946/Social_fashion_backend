@@ -66,7 +66,7 @@ def list_product_item():
     return ProductItemResource.get()
 
 @product_item_bp.route('/<int:product_item_id>',methods=['GET'])
-@jwt_required()
+@jwt_required(optional=True)
 def product_item(product_item_id):
     return ProductItemResource.get_product_item(product_item_id)
 @product_item_bp.route('/product/<int:product_id>',methods=['GET'])

@@ -3,6 +3,7 @@ from flask_restful import Resource
 from extensions import db
 from models.product import Product
 from models.product_category import ProductCategory
+from models.product_item import ProductItem
 from ..schemas.product_schema import ProductSchema
 from ...shared.uploadFile import uploadfile 
 from ...shared.isAllowedFile import isAllowedFile
@@ -62,10 +63,15 @@ class ProductResource(Resource):
 
     def Product_list():
         products = Product.query.all()
-        # print(products)
-        products_schema=ProductSchema(many=True)
-        # print(products_schema.dump(products))
-        return  products_schema.jsonify(products), 200
+        products_schema=ProductSchema()
+        product_data=[]
+        for product in products:
+            product_item=ProductItem.query.filter_by(product_id=product.id).first()
+            product_dict=products_schema.dump(product)
+            if product_item:
+                product_dict["product_item_id"]=product_item.id
+            product_data.append(product_dict)
+        return  jsonify(product_data), 200
     
     def get_product(product_id):
         print(product_id)

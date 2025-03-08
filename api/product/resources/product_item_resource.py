@@ -108,7 +108,7 @@ class ProductItemResource(Resource):
         print(product_item_id)
         try:
             product_item=ProductItem.query.get(product_item_id)
-            print(product_item)
+            # print(product_item)
             if not product_item :
                 return {"errro":"Product item not found"},404
             product = Product.query.get(product_item.product_id)
@@ -118,8 +118,8 @@ class ProductItemResource(Resource):
             current_user = get_jwt_identity()
             if current_user:
                 user_cart = ShoppingCart.query.filter_by(user_id=current_user['user_id']).first()
-            if user_cart:
-                wishlist_exists = WishlistItem.query.filter_by(
+                if user_cart:
+                    wishlist_exists = WishlistItem.query.filter_by(
                     cart_id=user_cart.id, product_item_id=product_item.id).first() is not None
 
             result = {
