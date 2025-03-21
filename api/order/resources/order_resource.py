@@ -3,6 +3,7 @@ from flask_restful import Resource
 from extensions import db
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models.shipping_method import ShippingMethod
+from models.product import Product
 from models.order_line import OrderLine
 from models.shop_order import ShopOrder
 from models.user_payment_method import UserPaymentMethod
@@ -10,6 +11,7 @@ from models.shopping_cart_item import ShoppingCartItem
 from models.shopping_cart import ShoppingCart
 from models.order_status import OrderStatus
 from models.product_item import ProductItem
+from models.site_user import SiteUser
 from ..schemas.shipping_method_schema import ShippingMethodSchema
 import stripe
 from config import Config
@@ -68,7 +70,7 @@ class ShippingMethodResource(Resource):
 
             db.session.add(new_payment)
             db.session.commit()
-
+            # print(new_payment)
             # Create Shop Order
             new_order = ShopOrder(
                 user_id=current_user['user_id'],
@@ -81,7 +83,7 @@ class ShippingMethodResource(Resource):
             )
             db.session.add(new_order)
             db.session.commit()
-
+            # print(new_order)
             order_lines = []
             for item in data.get("items", []):
                 order_line = OrderLine(
@@ -94,7 +96,7 @@ class ShippingMethodResource(Resource):
 
             db.session.add_all(order_lines)
             db.session.commit()
-
+            # print(order_lines)
             user_cart = ShoppingCart.query.filter_by(
                 user_id=current_user['user_id']).first()
             if user_cart:
@@ -129,11 +131,14 @@ class ShippingMethodResource(Resource):
             for line in order_lines:
                 product = ProductItem.query.filter_by(
                     id=line.product_item_id).first()
+                productName = Product.query.filter_by(id=product.product_id).first() if product else None
+                product_name = productName.name if productName else "Unknown"
                 items.append({
                     "product_id": product.id,
                     "product_image": product.product_image,
                     "qty": line.qty,
-                    "price": line.price
+                    "price": line.price,
+                    "product_name":product_name
                 })
 
             order_list.append({
@@ -150,3 +155,83 @@ class ShippingMethodResource(Resource):
 
       except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+    def get_all_orders():
+        try:
+            current_user = get_jwt_identity()
+            if not current_user or 'role' not in current_user or current_user['role'] != 'admin':
+                return jsonify({'message': 'Unauthorized access'}), 401
+
+            orders = ShopOrder.query.all()  # Fetch all orders
+            
+            if not orders:
+                return jsonify({"message": "No orders found"}), 404
+
+            order_list = []
+            for order in orders:
+                order_status = OrderStatus.query.filter_by(id=order.order_status).first()
+
+                user = SiteUser.query.filter_by(id=order.user_id).first()
+                username = user.username if user else "Unknown"
+
+                order_lines = OrderLine.query.filter_by(order_id=order.id).all()
+                items = []
+                for line in order_lines:
+                    product_item = ProductItem.query.filter_by(id=line.product_item_id).first()
+                    product = Product.query.filter_by(id=product_item.product_id).first() if product_item else None
+                    product_name = product.name if product else "Unknown"
+                    items.append({
+                        "product_id": product_name,
+                        "product_image": product_item.product_image if product_item else None,
+                        "qty": line.qty,
+                        "price": line.price
+                    })
+
+                order_list.append({
+                    "order_id": order.id,
+                    "username": username,  # Include user ID to differentiate orders
+                    "order_date": order.order_date.strftime("%Y-%m-%d %H:%M:%S"),
+                    "order_status": order_status.status if order_status else "Unknown",
+                    "order_status_id": order_status.id if order_status else "Unknown",
+                    "shipping_address": order.shipping_address,
+                    "shipping_method": order.shipping_method,
+                    "order_total": order.order_total,
+                    "items": items
+                })
+
+            return jsonify(order_list), 200
+
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+
+    def change_order_status():
+        try:
+            data = request.get_json()
+            order_id = data.get("order_id")
+            new_status_id = data.get("status_id")  
+            # print(order_id,new_status_id)
+            order = ShopOrder.query.get(order_id)
+            status = OrderStatus.query.get(new_status_id)
+            # print(status ,order)
+            if not order:
+                return jsonify({"message": "Order not found"}), 404
+            if not status:
+                return jsonify({"message": "Invalid status ID"}), 400
+
+            order.order_status = status.id
+            db.session.commit()
+
+            return jsonify({"message": "Order status updated successfully"}), 200
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"message": "An error occurred", "error": str(e)}), 500
+        
+
+    def get_all_status():
+        try:
+            statuses = OrderStatus.query.all()
+            status_list = [{"id": status.id, "name": status.status} for status in statuses]
+            return jsonify(status_list), 200
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500

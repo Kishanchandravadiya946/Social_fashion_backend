@@ -24,3 +24,21 @@ def place_order():
 @jwt_required()
 def shop_order_list():
     return ShippingMethodResource.get_user_orders()
+
+
+#Admin purpose
+@shop_order.route('/allorders',methods=['GET'])
+@jwt_required()
+def all_orders():
+    return ShippingMethodResource.get_all_orders()
+
+@shop_order.route('/changestatus',methods=['PUT'])
+@jwt_required()
+def order_status_change():
+    return ShippingMethodResource.change_order_status()
+
+
+@shop_order.route('/statuses',methods=['GET'])
+@jwt_required()
+def get_statuses_():
+    return ShippingMethodResource.get_all_status()
