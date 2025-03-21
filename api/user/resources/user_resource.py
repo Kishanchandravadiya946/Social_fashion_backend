@@ -136,6 +136,7 @@ class UserResource:
             return jsonify({'error': 'User not found'}), 404
 
         if not check_password_hash(user.password, password):
+            print(password, user.password)
             return jsonify({'error': 'Invalid password'}), 401
 
         if not user.verify_user:
@@ -164,8 +165,9 @@ class UserResource:
         return jsonify({
             'message': 'Login successful',
             'user_id': user.id,
+            'role':role,
             'access_token': access_token,
-            'refresh_token': refresh_token
+            # 'refresh_token': refresh_token
         }), 200
 
     @staticmethod
