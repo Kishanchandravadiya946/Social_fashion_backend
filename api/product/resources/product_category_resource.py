@@ -109,8 +109,9 @@ class ProductCategoryResource(Resource):
             if not category:
                 return {"error":"catwgory with category id : {category_id} doesn't exist"},400
             
+         
             db.session.delete(category)
             db.session.commit()
             return jsonify({"message": f"Category with category id: {category_id} deleted successfully"}), 200
         except Exception as e:
-            return jsonify({"message":'Error deleting category'})
+            return jsonify({"message":'Error deleting category'}),500
