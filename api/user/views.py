@@ -8,6 +8,11 @@ user_bp = Blueprint('user', __name__, url_prefix='/user')
 def create_user():
     return UserResource.create_user()
 
+
+@user_bp.route('/verify', methods=['POST'])
+def verify_user():
+    return UserResource.verify_user()
+
 @user_bp.route('/list', methods=['GET'])
 @jwt_required()
 def get_users():

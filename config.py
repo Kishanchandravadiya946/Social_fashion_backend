@@ -21,3 +21,10 @@ class Config:
     JWT_BLACKLIST_TOKEN_CHECKS = ["access", "refresh"]
     
     STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+    SMTP_Email = os.getenv("SMTP_Email")
+    SMTP_Password = os.getenv("SMTP_Password")
+
+    RedisHost = os.getenv("RedisHost")
+    RedisPort = os.getenv("RedisPort")
+    RedisUsername = os.getenv("RedisUsername")
+    RedisPassword = os.getenv("RedisPassword")

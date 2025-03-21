@@ -7,5 +7,6 @@ class SiteUser(db.Model):
     email_address = db.Column(db.String(255), nullable=False)
     phone_number = db.Column(db.String(20), nullable=True)
     password = db.Column(db.String(255), nullable=False)
+    verify_user = db.Column(db.Boolean, default=False)
     access_token = db.Column(db.String(512), nullable=True)  
     refresh_token = db.Column(db.String(512), nullable=True)
