@@ -227,7 +227,7 @@ class ProductItemsByProductResource(Resource):
             }
             for item in product_items
         ]
-
+        # print(result)
         return jsonify({"product_items": result}), 200
 
 class ProductItemDetailResource(Resource):

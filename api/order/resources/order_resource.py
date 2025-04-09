@@ -34,9 +34,11 @@ class ShippingMethodResource(Resource):
         try:
             data = request.get_json()
             amount = data.get("amount")
+            amount = int(float(amount) * 100)
             if not amount or amount <= 0:
                 return jsonify({"error": "Invalid amount"}), 400
 
+            stripe.api_key = Config.STRIPE_SECRET_KEY
             payment_intent = stripe.PaymentIntent.create(
                 amount=amount,
                 currency="usd",
@@ -108,53 +110,55 @@ class ShippingMethodResource(Resource):
         except Exception as e:
             db.session.rollback()
             return jsonify({"error": str(e)}), 500
-        
+
     def get_user_orders():
-      try:
-        current_user = get_jwt_identity()
-        if not current_user or 'user_id' not in current_user:
-            return jsonify({'message': 'Unauthorized access'}), 401
+        try:
+            current_user = get_jwt_identity()
+            if not current_user or 'user_id' not in current_user:
+                return jsonify({'message': 'Unauthorized access'}), 401
 
-        user_id = current_user['user_id']
+            user_id = current_user['user_id']
 
-        orders = ShopOrder.query.filter_by(user_id=user_id).all()
-        if not orders:
-            return jsonify({"message": "No orders found"}), 404
+            orders = ShopOrder.query.filter_by(user_id=user_id).all()
+            if not orders:
+                return jsonify({"message": "No orders found"}), 404
 
-        order_list = []
-        for order in orders:
-            order_status = OrderStatus.query.filter_by(
-                id=order.order_status).first()
+            order_list = []
+            for order in orders:
+                order_status = OrderStatus.query.filter_by(
+                    id=order.order_status).first()
 
-            order_lines = OrderLine.query.filter_by(order_id=order.id).all()
-            items = []
-            for line in order_lines:
-                product = ProductItem.query.filter_by(
-                    id=line.product_item_id).first()
-                productName = Product.query.filter_by(id=product.product_id).first() if product else None
-                product_name = productName.name if productName else "Unknown"
-                items.append({
-                    "product_id": product.id,
-                    "product_image": product.product_image,
-                    "qty": line.qty,
-                    "price": line.price,
-                    "product_name":product_name
+                order_lines = OrderLine.query.filter_by(
+                    order_id=order.id).all()
+                items = []
+                for line in order_lines:
+                    product = ProductItem.query.filter_by(
+                        id=line.product_item_id).first()
+                    productName = Product.query.filter_by(
+                        id=product.product_id).first() if product else None
+                    product_name = productName.name if productName else "Unknown"
+                    items.append({
+                        "product_id": product.id,
+                        "product_image": product.product_image,
+                        "qty": line.qty,
+                        "price": line.price,
+                        "product_name": product_name
+                    })
+
+                order_list.append({
+                    "order_id": order.id,
+                    "order_date": order.order_date.strftime("%Y-%m-%d %H:%M:%S"),
+                    "order_status": order_status.status if order_status else "Unknown",
+                    "shipping_address": order.shipping_address,
+                    "shipping_method": order.shipping_method,
+                    "order_total": order.order_total,
+                    "items": items
                 })
 
-            order_list.append({
-                "order_id": order.id,
-                "order_date": order.order_date.strftime("%Y-%m-%d %H:%M:%S"),
-                "order_status": order_status.status if order_status else "Unknown",
-                "shipping_address": order.shipping_address,
-                "shipping_method": order.shipping_method,
-                "order_total": order.order_total,
-                "items": items
-            })
+            return jsonify(order_list), 200
 
-        return jsonify(order_list), 200
-
-      except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
 
     def get_all_orders():
         try:
@@ -163,22 +167,26 @@ class ShippingMethodResource(Resource):
                 return jsonify({'message': 'Unauthorized access'}), 401
 
             orders = ShopOrder.query.all()  # Fetch all orders
-            
+
             if not orders:
                 return jsonify({"message": "No orders found"}), 404
 
             order_list = []
             for order in orders:
-                order_status = OrderStatus.query.filter_by(id=order.order_status).first()
+                order_status = OrderStatus.query.filter_by(
+                    id=order.order_status).first()
 
                 user = SiteUser.query.filter_by(id=order.user_id).first()
                 username = user.username if user else "Unknown"
 
-                order_lines = OrderLine.query.filter_by(order_id=order.id).all()
+                order_lines = OrderLine.query.filter_by(
+                    order_id=order.id).all()
                 items = []
                 for line in order_lines:
-                    product_item = ProductItem.query.filter_by(id=line.product_item_id).first()
-                    product = Product.query.filter_by(id=product_item.product_id).first() if product_item else None
+                    product_item = ProductItem.query.filter_by(
+                        id=line.product_item_id).first()
+                    product = Product.query.filter_by(
+                        id=product_item.product_id).first() if product_item else None
                     product_name = product.name if product else "Unknown"
                     items.append({
                         "product_id": product_name,
@@ -204,12 +212,11 @@ class ShippingMethodResource(Resource):
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
-
     def change_order_status():
         try:
             data = request.get_json()
             order_id = data.get("order_id")
-            new_status_id = data.get("status_id")  
+            new_status_id = data.get("status_id")
             # print(order_id,new_status_id)
             order = ShopOrder.query.get(order_id)
             status = OrderStatus.query.get(new_status_id)
@@ -226,12 +233,12 @@ class ShippingMethodResource(Resource):
         except Exception as e:
             db.session.rollback()
             return jsonify({"message": "An error occurred", "error": str(e)}), 500
-        
 
     def get_all_status():
         try:
             statuses = OrderStatus.query.all()
-            status_list = [{"id": status.id, "name": status.status} for status in statuses]
+            status_list = [{"id": status.id, "name": status.status}
+                           for status in statuses]
             return jsonify(status_list), 200
         except Exception as e:
             return jsonify({"error": str(e)}), 500

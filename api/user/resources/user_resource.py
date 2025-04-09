@@ -148,7 +148,7 @@ class UserResource:
 
         access_token = create_access_token(
             identity={"user_id": user.id, "role": role},
-            expires_delta=timedelta(minutes=10)
+            expires_delta=timedelta(minutes=300)
         )
         refresh_token = create_refresh_token(
             identity={"user_id": user.id, "role": role})
