@@ -4,6 +4,8 @@ flask-SQLAlchemy==3.1.1
 flask-Migrate==4.0.5
 flask-jwt-extended==4.6.0
 python-dotenv==1.0.1
+flask_marshmallow
+marshmallow
 
 flask-mail==0.9.1
 email-validator==2.1.0.post1
