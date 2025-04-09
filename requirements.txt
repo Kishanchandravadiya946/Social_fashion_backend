@@ -6,6 +6,7 @@ flask-jwt-extended==4.6.0
 python-dotenv==1.0.1
 flask_marshmallow
 marshmallow
+marshmallow_sqlalchemy
 
 flask-mail==0.9.1
 email-validator==2.1.0.post1
