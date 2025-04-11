@@ -95,7 +95,11 @@ class ShippingMethodResource(Resource):
                     price=item["price"]
                 )
                 order_lines.append(order_line)
-
+                product = ProductItem.query.get(item["product_item_id"])
+                product.qty_in_stock = product.qty_in_stock - item["qty"]
+                if product.qty_in_stock <0:
+                    return  jsonify({'message': 'NO MORE PRODUCT IN STOCK'}), 409
+                
             db.session.add_all(order_lines)
             db.session.commit()
             # print(order_lines)

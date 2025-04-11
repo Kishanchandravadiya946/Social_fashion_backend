@@ -83,6 +83,9 @@ class ShoppingCartResource(Resource):
         if not product:
             return jsonify({'message': 'Product not found'}), 404
 
+        if  product.qty_in_stock < 1:
+            return jsonify({'message': 'NO MORE PRODUCT IN STOCK'}), 409
+        
         existing_cart_item = ShoppingCartItem.query.filter_by(
             cart_id=user_cart.id, product_item_id=product_item_id).first()
         # print(data.get('qty'))
@@ -94,7 +97,9 @@ class ShoppingCartResource(Resource):
                 existing_cart_item.qty = data.get('qty', 1)
             else :
                 existing_cart_item.qty+=1
-            print(existing_cart_item.qty)
+            # print(existing_cart_item.qty)
+            if existing_cart_item.qty > product.qty_in_stock:
+                 return jsonify({'message': 'NO MORE PRODUCT IN STOCK'}), 409
             db.session.commit()
             return jsonify({'message': 'Product quantity updated in cart'})
         
