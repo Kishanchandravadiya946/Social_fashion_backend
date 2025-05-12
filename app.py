@@ -11,19 +11,9 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from api.user.resources.user_resource import revoked_tokens
 app = Flask(__name__)
-
+CORS(app)
 app.config.from_object(Config)
-print("HELLOOOOOO ")
-CORS(app,
-     origins=["https://mango-glacier-0805ada00.6.azurestaticapps.net/",
-              "http://localhost:5173"],
-     supports_credentials=True,
-     resources={r"/*": {"origins": [
-         "https://mango-glacier-0805ada00.6.azurestaticapps.net/",
-         "http://localhost:5173"
-     ]}},
-     methods=["GET", "POST", "OPTIONS", "PUT", "DELETE"],
-     allow_headers=["Content-Type", "Authorization"])
+# print("HELLOOOOOO ")
 
 jwt = JWTManager(app)
 
