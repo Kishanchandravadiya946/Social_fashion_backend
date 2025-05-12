@@ -13,7 +13,15 @@ from api.user.resources.user_resource import revoked_tokens
 app=Flask(__name__)
 
 app.config.from_object(Config)
-CORS(app)
+
+CORS(app,
+     origins=["https://mango-glacier-0805ada00.6.azurestaticapps.net"],
+     supports_credentials=True,
+     resources={
+         r"/*": {"origins": "https://mango-glacier-0805ada00.6.azurestaticapps.net"}},
+     methods=["GET", "POST", "OPTIONS", "PUT", "DELETE"],
+     allow_headers=["Content-Type", "Authorization"])
+
 jwt = JWTManager(app)
 
 @jwt.token_in_blocklist_loader
